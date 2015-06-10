@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.croniks.atmmachine.core.DataCon.Plates;
 
 public class ATMPlate {
