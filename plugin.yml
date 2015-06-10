@@ -3,4 +3,7 @@ version: b1
 main: org.croniks.atmmachine.core.Main
 author: DennisLysenko
 commands:
-    
+    atm-create:
+        description: 'Creates an ATM.'
+        usage: '/atm-create'
+        permission: 'atmmachine.create'
