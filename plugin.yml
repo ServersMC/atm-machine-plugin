@@ -1,0 +1,6 @@
+name: ATM-Machine
+version: b1
+main: org.croniks.atmmachine.core.Main
+author: DennisLysenko
+commands:
+    
