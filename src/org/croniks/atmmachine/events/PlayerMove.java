@@ -23,31 +23,34 @@ public class PlayerMove implements Listener {
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
-		Location loc = player.getLocation();
-		Block block = loc.getBlock();
+		Block block = player.getLocation().getBlock();
+		Location loc = block.getLocation();
 		
 		if (block.getType().equals(SettingsUtils.getPlate())) {
-			if (ATMPlate.existsPlate(loc)) {
-				ATMPlate plate = ATMPlate.getPlate(loc);
-				if (MemoryUtils.useContainsPlate(plate)) {
-					if (!MemoryUtils.useGet(player).equals(plate)) {
-						GeneralUtils.knockbackFromBlock(block, player);
-						player.sendMessage(ChatColor.RED + "This ATM is in use!");
+			if (!players.contains(player)) {
+				if (ATMPlate.existsPlate(loc)) {
+					ATMPlate plate = ATMPlate.getPlate(loc);
+					if (MemoryUtils.useContainsPlate(plate)) {
+						if (!MemoryUtils.useContainsPlayer(player)) {
+							GeneralUtils.knockbackFromBlock(block, player);
+							player.sendMessage(ChatColor.RED + "This ATM is in use!");
+							players.add(player);
+						}
 					}
-				}
-				else {
-					MemoryUtils.useAdd(player, plate);
-					player.openInventory(GUI.getMenu(player));
+					else {
+						MemoryUtils.useAdd(player, plate);
+						player.openInventory(GUI.getPageMenu(player));
+					}
 				}
 			}
 		}
 		else {
+			if (players.contains(player)) {
+				players.remove(player);
+			}
 			if (MemoryUtils.useContainsPlayer(player)) {
 				MemoryUtils.useRemove(player);
 			}
-		}
-		if (players.contains(player)) {
-			players.remove(player);
 		}
 	}
 	

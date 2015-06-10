@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.croniks.atmmachine.commands.CmdCreate;
 import org.croniks.atmmachine.events.BlockBreak;
 import org.croniks.atmmachine.events.BlockPlace;
+import org.croniks.atmmachine.events.InventoryClick;
 import org.croniks.atmmachine.events.PlayerInteract;
 import org.croniks.atmmachine.events.PlayerMove;
 import org.croniks.atmmachine.types.ATMPlate;
@@ -39,6 +40,7 @@ public class Main extends JavaPlugin {
 		pm.registerEvents(new BlockPlace(), this);
 		pm.registerEvents(new PlayerInteract(), this);
 		pm.registerEvents(new PlayerMove(), this);
+		pm.registerEvents(new InventoryClick(), this);
 		
 		// Command Register
 		getCommand("atm-create").setExecutor(new CmdCreate());

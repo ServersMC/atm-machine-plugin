@@ -61,7 +61,7 @@ public class GeneralUtils {
 
 	public static void knockbackFromBlock(Block block, Player player) {
 		Vector v = new Vector(0, 0, 0);
-		Integer m = -2;
+		Float m = -1.25F;
 		if (!block.getRelative(1, 0, 0).isEmpty()) {
 			v = new Vector(m, 0, 0);
 		}
