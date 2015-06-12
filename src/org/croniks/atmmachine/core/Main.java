@@ -21,7 +21,7 @@ import org.croniks.atmmachine.types.ATMPlate;
 public class Main extends JavaPlugin {
 	
 	private static File folder;
-    public static Economy economy = null;
+    public static Economy economy;
 	
 	@Override
 	public void onEnable() {

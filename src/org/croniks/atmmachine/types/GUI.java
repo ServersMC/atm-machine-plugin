@@ -1,13 +1,10 @@
 package org.croniks.atmmachine.types;
 
-import static org.croniks.atmmachine.types.GUI.Menu.CASH;
-import static org.croniks.atmmachine.types.GUI.Menu.DEBIT;
-import static org.croniks.atmmachine.types.GUI.Menu.DEPOSIT;
-import static org.croniks.atmmachine.types.GUI.Menu.WITHDRAWAL;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,14 +21,10 @@ public class GUI {
 	public static final String TITLE_DEPOSIT = ChatColor.BLUE + "" + ChatColor.BOLD + "ATM - Deposit";
 	public static final String TITLE_WITHDRAWAL = ChatColor.RED + "" + ChatColor.BOLD + "ATM - Withdrawal";
 
-	public static final class Menu {
-
-		public static final Integer DEPOSIT = 10;
-		public static final Integer WITHDRAWAL = 16;
-		public static final Integer CASH = 1;
-		public static final Integer DEBIT = 7;
-
-	}
+	public static final Integer DEPOSIT = 10;
+	public static final Integer WITHDRAWAL = 16;
+	public static final Integer CASH = 1;
+	public static final Integer DEBIT = 7;
 
 	public static Inventory getPageMenu(Player player) {
 		Inventory inv = Bukkit.createInventory(null, 27, TITLE_MENU);
@@ -44,7 +37,7 @@ public class GUI {
 		inv.setItem(CASH, getCash(player));
 		inv.setItem(DEBIT, getDebit(player));
 
-		while (inv.firstEmpty() >= 0) {
+		while (inv.firstEmpty() != -1) {
 			inv.setItem(inv.firstEmpty(), getBars());
 		}
 
@@ -60,9 +53,54 @@ public class GUI {
 			inv = Bukkit.createInventory(null, 27, TITLE_WITHDRAWAL);
 		}
 
-		
+		inv.setItem(3, getCash(player));
+		inv.setItem(5, getDebit(player));
+
+		inv.setItem(10, getNote(1.0, player, action));
+		inv.setItem(11, getNote(5.0, player, action));
+		inv.setItem(12, getNote(10.0, player, action));
+		inv.setItem(13, getNote(20.0, player, action));
+		inv.setItem(14, getNote(50.0, player, action));
+		inv.setItem(15, getNote(100.0, player, action));
+		inv.setItem(16, getNote(500.0, player, action));
+
+		while (inv.firstEmpty() >= 0) {
+			inv.setItem(inv.firstEmpty(), getBars());
+		}
 
 		return inv;
+	}
+
+	private static ItemStack getNote(Double num, Player player, GUIAction action) {
+		Economy eco = Main.economy;
+		ItemStack item = new ItemStack(Material.PAPER);
+		if (action.equals(GUIAction.DEPOSIT)) {
+			if (!eco.has(player, num)) {
+				item.addUnsafeEnchantment(CustomEnchant.VOID, 0);
+			}
+		}
+		else if (action.equals(GUIAction.WITHDRAWAL)) {
+			if (!eco.has(player, null, num)) {
+				item.addUnsafeEnchantment(CustomEnchant.VOID, 0);
+			}
+		}
+		
+		ItemMeta itemM = item.getItemMeta();
+
+		DecimalFormat df = new DecimalFormat("###,##0.00");
+
+		itemM.setDisplayName(ChatColor.AQUA + "$" + df.format(num) + "!");
+		item.setItemMeta(itemM);
+
+		return item;
+	}
+	
+	public static Double parseNote(ItemStack item) {
+		Double output = null;
+		String serialized = item.getItemMeta().getDisplayName();
+		serialized = ChatColor.stripColor(serialized);
+		output = new Double(serialized.replace("$", "").replace("!", ""));
+		return output;
 	}
 
 	private static ItemStack getWelcome(Player player) {
@@ -112,7 +150,7 @@ public class GUI {
 		itemM.setDisplayName(ChatColor.AQUA + "Withdrawal");
 
 		List<String> itemL = new ArrayList<String>();
-		itemL.add(ChatColor.GRAY + "Withdrawal crash from");
+		itemL.add(ChatColor.GRAY + "Withdrawal cash from");
 		itemL.add(ChatColor.GRAY + "your bank account!");
 
 		itemM.setLore(itemL);
@@ -141,7 +179,7 @@ public class GUI {
 		ItemMeta itemM = item.getItemMeta();
 		itemM.setDisplayName(ChatColor.AQUA + "Debit");
 
-		Double balance = Main.economy.bankBalance(player.getName()).balance;
+		Double balance = Main.economy.getBalance(player, null);
 		DecimalFormat df = new DecimalFormat("###,###,###,###,##0.00");
 
 		List<String> itemL = new ArrayList<String>();
@@ -161,6 +199,17 @@ public class GUI {
 
 		private GUIAction(Integer id) {
 			ID = id;
+		}
+		
+		public static GUIAction parse(String str) {
+			GUIAction output = null;
+			if (str.equals(TITLE_DEPOSIT)) {
+				output = DEPOSIT;
+			}
+			if (str.equals(TITLE_WITHDRAWAL)) {
+				output = WITHDRAWAL;
+			}
+			return output;
 		}
 
 		@Override
